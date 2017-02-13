@@ -24,7 +24,7 @@ uint32_t ip_to_number(char* ip_address)
     return address.s_addr;
 }
 
-int get_echo_args(int args_count, char** argv, struct ECHO_ARGS* result)
+int get_icmp_args(int args_count, char** argv, struct ICMP_ARGS* result)
 {
     int index = 0;
     int exist_next_arg = 0;
