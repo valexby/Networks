@@ -67,6 +67,14 @@ int set_socket_nonblock_mode(int socket_descriptor)
     return 0;
 }
 
+void close_socket(int socket_descriptor)
+{
+    if (close(socket_descriptor) == -1)
+    {
+        perror("socket closing error.\n");
+    }
+}
+
 void handle_socket_creating_error()
 {
     int error_number = errno;

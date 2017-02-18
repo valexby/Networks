@@ -2,6 +2,8 @@
 #include "arg_parser.h"
 #include "icmp_utils.h"
 
+#define REQUESTS_COUNT 5
+
 void ping_destination_address(struct ICMP_ARGS arguments);
 int initialize_socket(int ttl);
 
@@ -18,13 +20,28 @@ int main(int argc, char** argv)
 void ping_destination_address(struct ICMP_ARGS arguments)
 {
     int socket_descriptor = 0;
+    int index = 0;
+    struct ECHO_REQUEST request;
+    struct ECHO_REPLY reply;
 
     if ((socket_descriptor = initialize_socket(arguments.ttl)) == -1)
     {
         return;
     }
 
-    
+    for (index = 0; index < REQUESTS_COUNT; index ++)
+    {
+        initialize_echo_request(
+            arguments.src_address,
+            arguments.dst_address,
+            arguments.ttl,
+            &request
+        );
+        send_echo_request(socket_descriptor, request);
+        wait_echo_reply(socket_descriptor, &reply);
+        print_echo_reply(reply);
+    }
+    close_socket(socket_descriptor);
 }
 
 int initialize_socket(int ttl)
