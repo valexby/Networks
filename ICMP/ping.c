@@ -5,13 +5,16 @@
 #define REQUESTS_COUNT 5
 
 void ping_destination_address(struct ICMP_ARGS arguments);
-int initialize_socket(int ttl);
+int initialize_socket(uint32_t ttl);
 
 int main(int argc, char** argv)
 {
     struct ICMP_ARGS arguments;
 
-    get_icmp_args(argc, argv, &arguments);
+    if (get_icmp_args(argc, argv, &arguments) == -1)
+    {
+        return -1;
+    }
     ping_destination_address(arguments);
 
     return 0;
@@ -33,7 +36,7 @@ void ping_destination_address(struct ICMP_ARGS arguments)
     {
         initialize_echo_request(
             arguments.src_address,
-            arguments.dst_address,
+            arguments.dest_address,
             arguments.ttl,
             &request
         );
@@ -44,7 +47,7 @@ void ping_destination_address(struct ICMP_ARGS arguments)
     close_socket(socket_descriptor);
 }
 
-int initialize_socket(int ttl)
+int initialize_socket(uint32_t ttl)
 {
     int socket_descriptor = 0;
 

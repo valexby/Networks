@@ -1,37 +1,42 @@
-#include <netinet/in.h>
+#if !defined(_STD_INT_)
+
+#define _STD_INT_
+#include <stdint.h>
+
+#endif
 
 // Structures
 
+#define IP_HEADER_LENGTH 5
 #define FILL_DATASIZE 256
 
 struct IP_HEADER
 {
-    u_char header_length;
-    u_char type_of_service;
-    short total_length;
-    short id;
-    short flag_off;
-    u_char ttl;
-    u_char protocol;
-    u_char ckecksum;
-    struct in_addr src_address;
-    struct in_addr dst_address;
+    uint8_t version:4, header_length:4;
+    uint8_t type_of_service;
+    uint16_t total_length;
+    uint16_t id;
+    uint16_t flag_off;
+    uint8_t ttl;
+    uint8_t protocol;
+    uint16_t checksum;
+    uint32_t src_address;
+    uint32_t dst_address;
 };
 
 struct ICMP_HEADER
 {
-    u_char type;
-    u_char code;
-    u_short checksum;
-    u_short id;
-    u_short seq;
+    uint8_t type;
+    uint8_t code;
+    uint16_t checksum;
+    uint16_t id;
+    uint16_t sequence_number;
 };
 
 struct ECHO_REQUEST
 {
     struct IP_HEADER ip_header;
     struct ICMP_HEADER icmp_header;
-    int time_stamp;
     char data[FILL_DATASIZE];
 };
 
@@ -39,7 +44,6 @@ struct ECHO_REPLY
 {
     struct IP_HEADER ip_header;
     struct ICMP_HEADER icmp_header;
-    int time_stamp;
     char data[FILL_DATASIZE];
 };
 
@@ -74,7 +78,7 @@ int set_socket_nonblock_mode(int socket_descriptor);
 /*
 Sets all needed fields of echo request
 */
-void initialize_echo_request(uint32_t src, uint32_t dst, int ttl, struct ECHO_REQUEST* request);
+void initialize_echo_request(uint32_t src, uint32_t dst, uint32_t ttl, struct ECHO_REQUEST* request);
 
 /*
 Sends a echo request

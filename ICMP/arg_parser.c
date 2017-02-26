@@ -50,4 +50,10 @@ int get_icmp_args(int args_count, char** argv, struct ICMP_ARGS* result)
             result -> ttl = atoi(argv[index + 1]);
         }
     }
+
+    if (result -> dest_address == 0)
+    {
+        perror("destination address is invalid");
+        return -1;
+    }
 }
