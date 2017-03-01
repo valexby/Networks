@@ -1,0 +1,31 @@
+CC=gcc
+CFLAGS=-c
+PINGSRC=ping.c
+PINGOBJ=$(PINGSRC:.c=.o)
+PINGNAME=ping_vm
+TRACERTSRC=traceroute.c
+TRACERTOBJ=$(TRACERTSRC:.c=.o)
+TRACERTNAME=traceroute_vm
+COMMONSRC=icmp_utils.c arg_parser.c
+COMMONOBJ=$(COMMONSRC:.c=.o)
+
+all: ping traceroute
+
+ping: $(PINGOBJ) $(COMMONOBJ)
+	$(CC) $(PINGOBJ) $(COMMONOBJ) -o $(PINGNAME)
+
+traceroute: $(TRACERTOBJ) $(COMMONOBJ)
+	$(CC) $(TRACERTOBJ) $(COMMONOBJ) -o $(TRACERTNAME)
+
+$(PINGOBJ): $(PINGSRC)
+	$(CC) $(CFLAGS) $(PINGSRC)
+
+$(TRACERTOBJ): $(TRACERTSRC)
+	$(CC) $(CFLAGS) $(TRACERTSRC)
+
+$(COMMONOBJ): $(COMMONSRC)
+	$(CC) $(CFLAGS) $(COMMONSRC)
+
+clean:
+	rm *.o
+	rm $(PINGNAME) $(TRACERTNAME)
