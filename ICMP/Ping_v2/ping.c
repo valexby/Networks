@@ -32,16 +32,16 @@ int initialize_socket() {
 #ifdef _WIN32
 
     WSADATA wsa;
-    printf("\nWinsock initializing started.");
+    printf("Winsock initializing started.\n");
 
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-        printf("Winsock initializing failed. Error Code: %d", WSAGetLastError());
+        printf("Winsock initializing failed. Error Code: %d\n", WSAGetLastError());
         exit(EXIT_FAILURE);
     }
     printf("Winsock initialized.\n");
 
     if((sockfd = WSASocket(AF_INET, SOCK_RAW, IPPROTO_ICMP, 0, 0, 0)) == INVALID_SOCKET) {
-        printf("Socket creating failed. Error code: %d" , WSAGetLastError());
+        printf("Socket creating failed. Error code: %d\n" , WSAGetLastError());
         exit(EXIT_FAILURE);
     }
     printf("Socket was created.\n");
@@ -52,7 +52,7 @@ int initialize_socket() {
     struct protoent *protocol = getprotobyname("ICMP");
 
     if ((sockfd = socket(PF_INET, SOCK_RAW, protocol -> p_proto)) < 0) {
-        perror("Socket creating failed.");
+        perror("Socket creating failed.\n");
         exit(EXIT_FAILURE);
     }
     printf("Socket was created.\n");
@@ -74,17 +74,17 @@ void set_socket_options() {
     int ip_header_include = 1;
 
     if (setsockopt(sockfd, IPPROTO_IP, IP_TTL, (const char *) &ttl, sizeof(ttl)) != 0) {
-        perror("Error: TTL option was not setted.");
+        perror("Error: TTL option was not setted.\n");
         exit(EXIT_FAILURE);
     }
 
     if (setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, (const char *) &ip_header_include, sizeof(ip_header_include)) != 0) {
-        perror("Error: IP header included option was not setted.");
+        perror("Error: IP header included option was not setted.\n");
         exit(EXIT_FAILURE);
     }
 
     if (fcntl(sockfd, F_SETFL, O_NONBLOCK) != 0) {
-        perror("Error: nonblocking I/O mode was not setted.");
+        perror("Error: nonblocking I/O mode was not setted.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -99,6 +99,22 @@ void set_socket_options() {
 
 #endif
 
+}
+
+void close_socket() {
+
+#ifdef __linux__
+
+    close(sockfd);
+
+
+#elif _WIN32
+
+    closesocket(sockfd);
+
+#endif
+
+    printf("Socket was closed.\n");
 }
 
 void initialize_request(
@@ -165,8 +181,12 @@ void ping(struct sockaddr_in *dst_address, struct sockaddr_in *src_address, long
 
             if (send_result > 0) {
                 send_packets++;
+
+                if (send_packets % 10 == 0) {
+                    printf("Successfully sended packets count: %ld\n", send_packets);
+                }
             } else {
-                perror("Ping request sending error.");
+                perror("Ping request sending error.\n");
             }
         }
 
@@ -194,7 +214,7 @@ void ping(struct sockaddr_in *dst_address, struct sockaddr_in *src_address, long
     }
 
     printf(
-        "Packets: Sent = %d, Recieved = %d, Lost = %d\n",
+        "Packets: Sent = %ld, Recieved = %ld, Lost = %ld\n",
         send_packets,
         received_packets,
         send_packets - received_packets
@@ -220,7 +240,7 @@ void initilize_current_host_address(struct sockaddr_in *address) {
 
 void parse_arguments(int argc, char *argv[], struct ping_arguments* arguments) {
     if (argc < 2 || argc > 4) {
-        printf("Invalid arguments count.");
+        printf("Invalid arguments count.\n");
         printf("Command usage example: %s <target_address> [max_packets_count] [source_address]\n", argv[0]);
         exit(EXIT_FAILURE);
     }
@@ -245,10 +265,11 @@ void parse_arguments(int argc, char *argv[], struct ping_arguments* arguments) {
 int main(int argc, char *argv[]) {
     struct ping_arguments arguments;
 
-    parse_arguments(argc, argv, &arguments);
     initialize_socket();
     set_socket_options();
+    parse_arguments(argc, argv, &arguments);
     ping(&arguments.dest_addr, &arguments.src_addr, arguments.max_packets_count);
+    close_socket();
 
     return 0;
 }

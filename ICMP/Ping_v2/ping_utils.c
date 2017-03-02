@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "utils.h"
+#include "ping_utils.h"
 
 void ip_to_string(unsigned long ip, char *string, size_t size) {
     if (size < 16) {
