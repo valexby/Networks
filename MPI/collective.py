@@ -86,7 +86,13 @@ def main():
 
     if group_rank == MASTER_RANK:
         process_time = end_time - start_time
-        print_results(process_group.name, np.concatenate(result), process_time)
+        result_matrix = np.concatenate(result)
+        print_results(process_group.name, result_matrix, process_time)
+        
+        if result_matrix == first_matrix * second_matrix:
+            print("Matrix are equals.")
+        else:
+            print("Matrix are not equals.")
 
 
 if __name__ == '__main__':
