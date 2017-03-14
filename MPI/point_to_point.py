@@ -1,17 +1,10 @@
 #!/usr/bin/env python3
 
-import numpy as np
-from mpi4py import MPI
 from argparse import ArgumentParser
+import numpy as np
 
-MASTER_RANK = 0
-
-FIRST_MATRIX_TAG = 2
-SECOND_MATRIX_TAG = 3
-RESULT_TAG = 4
-
-X_MATRIX_SIZE = 1000
-Y_MATRIX_SIZE = 2000
+from mpi4py import MPI
+from constants import MASTER_RANK, FIRST_MATRIX_TAG, SECOND_MATRIX_TAG, RESULT_TAG, X_MATRIX_SIZE, Y_MATRIX_SIZE
 
 
 def _parse_args():
