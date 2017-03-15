@@ -3,7 +3,7 @@ import numpy as np
 from argparse import ArgumentParser
 from mpi4py import MPI
 
-from constants import MASTER_RANK, X_MATRIX_SIZE, Y_MATRIX_SIZE
+from constants import MASTER_RANK, X_MATRIX_SIZE, Y_MATRIX_SIZE, RESULT_TAG
 
 
 def _parse_args():
@@ -79,20 +79,22 @@ def main():
 
     # Send or assembly results.
     result = np.matrix(first_matrix) * np.matrix(second_matrix)
-    result = process_group.gather(result.astype(np.uint))
+    results = []
+
+    if group_rank == MASTER_RANK:
+        for rank_index in range(1, group_processes_count):
+            results.append(process_group.recv(source=rank_index, tag=RESULT_TAG))
+    else:
+        process_group.send(result, dest=MASTER_RANK, tag=RESULT_TAG)
+    # result = process_group.gather(result.astype(np.uint))
 
     end_time = MPI.Wtime()
     MPI.COMM_WORLD.barrier()
 
     if group_rank == MASTER_RANK:
         process_time = end_time - start_time
-        result_matrix = np.concatenate(result)
+        result_matrix = np.concatenate(results)
         print_results(process_group.name, result_matrix, process_time)
-        
-        if result_matrix == first_matrix * second_matrix:
-            print("Matrix are equals.")
-        else:
-            print("Matrix are not equals.")
 
 
 if __name__ == '__main__':
