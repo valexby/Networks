@@ -72,8 +72,9 @@ def main():
     if process_rank == MASTER_RANK:
         first_matrix, second_matrix = _generate_matrices()
         result_matrix = process_master_task(first_matrix, second_matrix, processes_count, args.async)
+        result_matrix[0][0] = 1488
 
-        if result_matrix == first_matrix * second_matrix:
+        if np.array_equal(result_matrix, np.dot(first_matrix, second_matrix)):
             print("Matrix are equals.")
         else:
             print("Matrix are not equals.")
